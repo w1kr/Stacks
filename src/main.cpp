@@ -2,25 +2,15 @@
 #include "stack_list.hpp"
 #include <iostream>
 
-const int CAPACITY = 64;
-
 int main()
 {
 // ----------- Dynamic array (int) -------------
     try
     {
-        Stack<int>* stack = new Stack<int>(CAPACITY);
-        
-        stack->push(100);
-        std::cout << stack->top() << std::endl;
+        Stack<int> stack(64);
 
-        stack->push(200);
-        std::cout << stack->top() << std::endl;
-        std::cout << std::endl;
-
-
-        for (size_t i = 0; i < 100; ++i) { stack->push(i); }
-        while (stack->size() > 0) { std::cout << stack->top() << std::endl; stack->pop(); }
+        stack.push(100);
+        std::cout << stack.top() << std::endl;
     }
     catch(const std::exception& e)
     {

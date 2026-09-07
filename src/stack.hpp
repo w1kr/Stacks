@@ -2,77 +2,89 @@
 
 #include <iostream>
 #include <stdexcept>
+#include <utility>
+#include <cstddef>
+
+const int CAPACITY = 64;
 
 template <typename T>
 class Stack
 {
 private:
-    T* data;
-    size_t count;
-    size_t capacity;
+    T* data_;
+    std::size_t count_;
+    std::size_t capacity_;
+
+    void resize(const std::size_t& new_capacity)
+    {
+        T* new_data = new T[new_capacity];
+        for (size_t i = 0; count_; ++i) {
+            new_data[i] = std::move(data_[i]);
+        }
+
+        delete[] data_;
+        data_ = new_data;
+        capacity_ = new_capacity;
+    }
 
 public:
-    Stack(const size_t capacity)
-    {
-        if (capacity <= 0) { throw std::invalid_argument(" Stack: capacity must be greater than 0!"); }
-        this->capacity = capacity;
-        this->count = 0;
-        
-        this->data = new T[this->capacity];
-    }
+    Stack(const std::size_t& capacity = CAPACITY) : data_(new T[capacity]), count_(0), capacity_(capacity) {}
 
     ~Stack()
     {
-        delete[] this->data;
+        delete[] data_;
         std::cout << " stack was cleared!" << std::endl;
     }
 
+    // work
+
+
     void push(const T& x)
     {
-        if (this->count < this->capacity) {
-            this->data[count++] = x;
+        if (count_ < capacity_) {
+            data_[count_++] = x;
         }
         else {
-            this->capacity *= 2;
+            capacity_ *= 2;
 
-            T* newdata = new T[this->capacity];
-            for (int i = 0; i < this->count; ++i) {
-                newdata[i] = this->data[i];
+            T* newdata = new T[capacity_];
+            for (int i = 0; i < count_; ++i) {
+                newdata[i] = data_[i];
             }
 
-            delete[] this->data;
-            this->data = newdata;
-            this->data[count++] = x;
+            delete[] data_;
+            data_ = newdata;
+            data_[count_++] = x;
         }
     }
 
     void pop()
     {
-        if (this->count == 0) { throw std::invalid_argument(" pop: stack is already empty!"); }
+        if (count_ == 0) { throw std::invalid_argument(" pop: stack is already empty!"); }
         else {
-            if (this->capacity > this->count * 2) {
-                    this->capacity /= 2;
+            if (capacity_ > count_ * 2) {
+                    capacity_ /= 2;
 
-                    T* newdata = new T[this->capacity];
-                    for (int i = 0; i < this->count; ++i) {
-                        newdata[i] = this->data[i];
+                    T* newdata = new T[capacity_];
+                    for (int i = 0; i < count_; ++i) {
+                        newdata[i] = data_[i];
                     }
 
-                    delete[] this->data;
-                    this->data = newdata;
+                    delete[] data_;
+                    data_ = newdata;
             }
-            count--;
+            count_--;
         }
     }
 
     T top() 
     {
-        if (this->count == 0) { throw std::out_of_range(" top: stack is empty!"); }
-        return this->data[count - 1];
+        if (count_ == 0) { throw std::out_of_range(" top: stack is empty!"); }
+        return data_[count_ - 1];
     }
 
     int size() 
     {
-        return this->count;
+        return count_;
     }
 };
