@@ -1,11 +1,8 @@
-// #include "stack.hpp"
-#include "stack.cpp"
-// #include "stack_list.hpp"
-#include "stack_list.cpp"
+#include "stack.hpp"
+#include "stack_list.hpp"
 #include <iostream>
 
-#define CAPACITY 1024
-
+const int CAPACITY = 1024;
 
 int main()
 {
