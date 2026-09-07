@@ -2,94 +2,35 @@
 #include "stack_list.hpp"
 #include <iostream>
 
-const int CAPACITY = 1024;
+const int CAPACITY = 64;
 
 int main()
 {
 // ----------- Dynamic array (int) -------------
     try
-    {        
-        Stack<int> stack(CAPACITY);
-        for (int i = 1; i <= 1000; ++i) { stack.push(i); }
-        for (int i = 1; i <= 500; ++i) { stack.pop(); }
-
-        std::cout << stack.top() << std::endl;
-        stack.pop();
-
-        while (stack.size() > 0) {
-            std::cout << stack.top() << " ";
-            stack.pop();
-        }
-        std::cout << std::endl;
-
-        for (int i = 1; i <= 100; ++i) { stack.push(i); }
-        for (int i = 10000; i <= 20000; ++i) { stack.push(i); }
+    {
+        Stack<int>* stack = new Stack<int>(CAPACITY);
         
-        while (stack.size() > 0) {
-            std::cout << stack.top() << " ";
-            stack.pop();
-        }
+        stack->push(100);
+        std::cout << stack->top() << std::endl;
+
+        stack->push(200);
+        std::cout << stack->top() << std::endl;
         std::cout << std::endl;
 
-        // ----- if size == 0 -----
-        // stack.top();
 
-        // for (int i = 1; i <= 1000; ++i) { stack.push(i); }
-        // for (int i = 1; i <= 1500; ++i) { stack.pop(); }
-
-        // Stack<int> temp_stack(0);
+        for (size_t i = 0; i < 100; ++i) { stack->push(i); }
+        while (stack->size() > 0) { std::cout << stack->top() << std::endl; stack->pop(); }
     }
     catch(const std::exception& e)
     {
         std::cerr << e.what() << '\n';
     }
 
-
-// ---------- Dynamic array (char) ------------
-/*     try
-    {        
-        Stack<char> stack(CAPACITY);
-        for (int i = 1; i <= 100; ++i) { stack.push('A'); }
-        for (int i = 1; i <= 200; ++i) { stack.push('B'); }
-        for (int i = 1; i <= 100; ++i) { stack.push('C'); }
-
-        std::cout << stack.size() << std::endl;
-
-        std::cout << stack.top() << std::endl;
-        stack.pop();
-
-        std::cout << stack.size() << std::endl;
-
-        while (stack.size() > 0) {
-            std::cout << stack.top() << " ";
-            stack.pop();
-        }
-        std::cout << std::endl;
-
-        std::cout << stack.size() << std::endl;
-        std::cout << std::endl;
-
-        for (int i = 1; i <= 100; ++i) { stack.push('1'); }
-        for (int i = 1; i <= 200; ++i) { stack.push('2'); }
-        for (int i = 1; i <= 150; ++i) { stack.push('3'); }
-        for (int i = 1; i <= 1000; ++i) { stack.push('4'); }
-        
-        std::cout << stack.size() << std::endl;
-
-        while (stack.size() > 0) {
-            std::cout << stack.top() << " ";
-            stack.pop();
-        }
-        std::cout << std::endl;
-    }
-    catch(const std::exception& e)
-    {
-        std::cerr << e.what() << '\n';
-    }
- */
+    return 0;
 
 // ------------ List (int) ------------
-    /* try
+    try
     {
         StackList<int> stacklist;
 
@@ -118,11 +59,11 @@ int main()
     catch(const std::exception& e)
     {
         std::cerr << e.what() << '\n';
-    } */
+    }
 
 
 // ------------ List (char) ------------
-    /* try
+    try
     {
         StackList<char> stacklist;
 
@@ -164,8 +105,5 @@ int main()
     catch(const std::exception& e)
     {
         std::cerr << e.what() << '\n';
-    } */
-
-    return 0;
+    }
 }
-

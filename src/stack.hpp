@@ -12,7 +12,7 @@ private:
     size_t capacity;
 
 public:
-    Stack(int capacity)
+    Stack(const size_t capacity)
     {
         if (capacity <= 0) { throw std::invalid_argument(" Stack: capacity must be greater than 0!"); }
         this->capacity = capacity;
@@ -27,7 +27,7 @@ public:
         std::cout << " stack was cleared!" << std::endl;
     }
 
-    void push(T x)
+    void push(const T& x)
     {
         if (this->count < this->capacity) {
             this->data[count++] = x;
