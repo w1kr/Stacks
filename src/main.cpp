@@ -2,15 +2,25 @@
 #include "stack_list.hpp"
 #include <iostream>
 
+#include <string>
+
 int main()
 {
-// ----------- Dynamic array (int) -------------
+// ----------- Dynamic array -------------
     try
     {
         Stack<int> stack(64);
 
         stack.push(100);
-        std::cout << stack.top() << std::endl;
+        stack.push(200);
+        stack.push(300);
+        stack.push(400);
+        stack.push(500);
+
+        Stack<int> stack2 = std::move(stack);
+
+        while (stack2.size() > 0) { std::cout << stack2.top() << " "; stack2.pop(); }
+        std::cout << std::endl;
     }
     catch(const std::exception& e)
     {
@@ -19,81 +29,34 @@ int main()
 
     return 0;
 
-// ------------ List (int) ------------
+// ------------ List ------------
     try
     {
         StackList<int> stacklist;
+        stacklist.push(1);
+        stacklist.push(2);
+        stacklist.push(3);
+        stacklist.push(4);
 
-        stacklist.push(100);
-        stacklist.push(200);
-        stacklist.push(300);
-
-        stacklist.pop();
-        stacklist.pop();
-        stacklist.pop();
-        // stacklist.pop();
-        // stacklist.top();
-
-        for (int i = 1; i <= 100; ++i) {
-            stacklist.push(i);
-        }
+        int a = 100;
+        stacklist.push(a);
 
         std::cout << stacklist.top() << std::endl;
-
-        for (int i = 1; i <= 5; ++i) {
-            stacklist.pop();
-        }
-
+        stacklist.pop();
         std::cout << stacklist.top() << std::endl;
-    }
-    catch(const std::exception& e)
-    {
-        std::cerr << e.what() << '\n';
-    }
 
-
-// ------------ List (char) ------------
-    try
-    {
-        StackList<char> stacklist;
-
-        stacklist.push('A');
-        stacklist.push('B');
-        stacklist.push('C');
-
-        stacklist.pop();
-        stacklist.pop();
-        stacklist.pop();
-        // stacklist.pop();
-        // stacklist.top();
-
-        for (int i = 1; i <= 50; ++i) {
-            stacklist.push('A');
-        }
-        for (int i = 1; i <= 40; ++i) {
-            stacklist.push('B');
-        }
-        for (int i = 1; i <= 30; ++i) {
-            stacklist.push('C');
-        }
+        StackList<int> stacklist2 = stacklist;
+        stacklist2.push(100);
+        stacklist2.push(200);
         
-        std::cout << stacklist.top() << std::endl;
-
-        for (int i = 1; i <= 29; ++i) {
-            stacklist.pop();
-        }
-
-        while (stacklist.size() > 0) {
-            std::cout << stacklist.top() << " ";
-            stacklist.pop();
-        }
-        std::cout << std::endl;
-
-        stacklist.push('F');
-        std::cout << stacklist.top() << std::endl;
+        stacklist2.top();
+        stacklist2.pop();
+        stacklist2.top();
     }
     catch(const std::exception& e)
     {
         std::cerr << e.what() << '\n';
     }
+
+    return 0;
 }

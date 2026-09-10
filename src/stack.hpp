@@ -30,60 +30,81 @@ private:
 public:
     Stack(const std::size_t& capacity = CAPACITY) : data_(new T[capacity]), count_(0), capacity_(capacity) {}
 
-    ~Stack()
+    ~Stack() { delete[] data_; }
+
+    Stack(const Stack& other) : data_(new T[other.capacity_]), count_(other.count_), capacity_(other.capacity_) 
     {
-        delete[] data_;
-        std::cout << " stack was cleared!" << std::endl;
+        for (std::size_t i = 0; i < count_; ++i) { data_[i] = std::move(other.data_[i]); }
     }
 
-    // work
+    Stack& operator=(const Stack& other) 
+    {
+        if (this == &other) { return *this; }
+
+        T* new_data = new T[other.capacity_];
+        for (std::size_t i = 0; i < other.count_; ++i) { new_data[i] = other.data_[i]; }
+        
+        delete[] data_;
+        data_ = new_data;
+        count_ = other.count_;
+        capacity_ = other.capacity_;
+
+        return *this;
+    }
+
+    Stack(Stack&& other) noexcept : data_(other.data_), count_(other.count_), capacity_(other.capacity_)
+    {
+        other.data_ = nullptr;
+        other.count_ = 0;
+        other.capacity_ = 0;
+    }
+
+    Stack& operator=(Stack&& other) noexcept 
+    {
+        if (this == &other) { return *this; }
+
+        delete[] data_;
+        data_ = other.data_;
+        count_ = other.count_;
+        capacity_ = other.capacity_;
+
+        other.data_ = nullptr;
+        other.count_ = 0;
+        other.capacity_ = 0;
+
+        return *this;
+    }
 
 
     void push(const T& x)
     {
-        if (count_ < capacity_) {
-            data_[count_++] = x;
+        if (count_ == capacity_) {
+            resize(capacity_ == 0 ? 1 : capacity_ * 2);
         }
-        else {
-            capacity_ *= 2;
+        data_[count_++] = x;
+    }
 
-            T* newdata = new T[capacity_];
-            for (int i = 0; i < count_; ++i) {
-                newdata[i] = data_[i];
-            }
-
-            delete[] data_;
-            data_ = newdata;
-            data_[count_++] = x;
+    void push(const T&& x)
+    {
+        if (count_ == capacity_) {
+            resize(capacity_ == 0 ? 1 : capacity_ * 2);
         }
+        data_[count_++] = std::move(x);
     }
 
     void pop()
     {
-        if (count_ == 0) { throw std::invalid_argument(" pop: stack is already empty!"); }
-        else {
-            if (capacity_ > count_ * 2) {
-                    capacity_ /= 2;
-
-                    T* newdata = new T[capacity_];
-                    for (int i = 0; i < count_; ++i) {
-                        newdata[i] = data_[i];
-                    }
-
-                    delete[] data_;
-                    data_ = newdata;
-            }
-            count_--;
-        }
+        if (count_ == 0) { throw std::out_of_range(" pop: stack is already empty!"); }
+        count_--;
     }
 
-    T top() 
+    T& top() 
     {
         if (count_ == 0) { throw std::out_of_range(" top: stack is empty!"); }
         return data_[count_ - 1];
     }
 
-    int size() 
+    std::size_t size() 
     {
         return count_;
     }

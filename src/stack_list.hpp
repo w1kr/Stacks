@@ -1,80 +1,127 @@
 #pragma once
 
 #include <iostream>
+#include <cstddef>
 #include <stdexcept>
+#include <utility>
 
 
 template <typename T>
-class _node
+struct Node
 {
-public:
-    T data;
-    _node* next;
+    T data_;
+    Node* next_;
 
-    _node(const T& x)
-    {
-        this->data = x;
-        this->next = nullptr;
-    }
-
-    ~_node()
-    {
-    }
+    Node(const T& data) : data_(data), next_(nullptr) {}
+    Node(const T&& data) : data_(std::move(data)), next_(nullptr) {}
 };
+
 
 template <typename T>
 class StackList
 {
 private:
-    _node<T>* node;
-    int count;
+    Node<T>* head_;
+    std::size_t count_;
 
 public:
-    StackList()
-    {
-        this->node = nullptr;
-        this->count = 0;
-    }
+    StackList() : head_(nullptr), count_(0) {}
 
     ~StackList()
     {
-        while (this->count != 0) {
-            _node<T>* temp = this->node->next;
-            delete this->node;
-            this->node = temp;
-            this->count--;
+        while (head_ != nullptr)
+        {
+            Node<T>* next = head_->next_;
+            delete head_;
+            head_ = next;
         }
-
-        std::cout << " stacklist was cleared!" << std::endl;
+        count_ = 0;
     }
+
+    StackList(const StackList& other) : head_(nullptr), count_(0)
+    {
+        Node<T>** current = &head_;
+
+        for (Node<T>* source = other.head_; source != nullptr; source = source->next_) {
+            *current = new Node<T>(source->data_);
+            current = &((*current)->next_);
+            count_++;
+        }
+    }
+
+    StackList& operator=(const StackList& other)
+    {
+        if (this == &other) { return *this; }
+
+        StackList temp(other);
+        std::swap(head_, temp.head_);
+        std::swap(count_, temp.count_);
+
+        return *this;
+    }
+
+    StackList(StackList&& other) noexcept : head_(other.head_), count_(other.count_)
+    {
+        other.head_ = nullptr;
+        other.count_ = 0;
+    }
+
+    StackList& operator=(StackList&& other) noexcept
+    {
+        if ( this == &other) { return *this; }
+
+        while (head_ != nullptr)
+        {
+            Node<T>* next = head_->next_;
+            delete head_;
+            head_ = next;
+        }
+        count_ = 0;
+
+        head_ = other.head_;
+        count_ = other.count_;
+        other.head_ = nullptr;
+        other.count_ = 0;
+
+        return *this;
+    }
+
 
     void push(const T& x)
     {
-        _node<T>* tempptr = this->node;
-        _node<T>* newnode = new _node<T>(x);
+        Node<T>* new_node = new Node<T>(x);
+        new_node->next_ = head_;
+        head_ = new_node;
+        count_++;
+    }
 
-        this->node = newnode;
-        this->node->next = tempptr;
-        this->count++;
+    void push(T&& x)
+    {
+        Node<T>* new_node = new Node<T>(std::move(x));
+        new_node->next_ = head_;
+        head_ = new_node;
+        count_++;
     }
 
     void pop()
     {
-        if (this->count == 0) { throw std::out_of_range(" pop: stack is already empty!"); }
-        _node<T>* temp = this->node->next;
-        delete this->node;
-        this->node = temp;
-        this->count--;
+        if (count_ == 0) { throw std::out_of_range(" pop: stacklist is empty!"); }
+
+        Node<T>* temp_node = head_;
+        head_ = head_->next_;
+        delete temp_node;
+        count_--;
     }
 
-    T top()
+    T& top()
     {
-        if (!this->node) { throw std::out_of_range(" top: stack is empty!"); }
-        return this->node->data;
+        if (count_ == 0) { throw std::out_of_range(" top: stacklist is empty!"); }
+
+        return head_->data_;
     }
 
-    int size()
+    std::size_t size()
     {
-        return this->count;
+        return count_;
     }
 };
