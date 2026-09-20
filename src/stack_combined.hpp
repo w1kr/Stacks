@@ -23,16 +23,8 @@ struct DynamicData
     std::size_t count_;
     std::size_t capacity_;
 
-    DynamicData(const std::size_t& capacity) : data_(nullptr), count_(0), capacity_(capacity) 
-    {
-        data_ = new T[capacity_];
-    }
-
-    DynamicData(const std::size_t&& capacity) : data_(nullptr), count_(0), capacity_(std::move(capacity)) 
-    {
-        data_ = new T[capacity_];
-    }
-
+    explicit DynamicData(const std::size_t& capacity) : data_(new T[capacity]), count_(0), capacity_(capacity) {}
+    explicit DynamicData(const std::size_t&& capacity) : data_(new T[capacity]), count_(0), capacity_(std::move(capacity)) {}
     ~DynamicData()
     {
         delete[] data_;
@@ -46,11 +38,12 @@ struct StackNode
     DynamicData<T>* data_;
     StackNode* next_;
 
-    StackNode(const std::size_t& capacity) : data_(new DynamicData<T>(capacity)), next_(nullptr) {}
-
-    StackNode(const std::size_t&& capacity) : data_(new DynamicData<T>(std::move(capacity))), next_(nullptr) {}
-
-    ~StackNode() {}
+    explicit StackNode(const std::size_t& capacity) : data_(new DynamicData<T>(capacity)), next_(nullptr) {}
+    explicit StackNode(const std::size_t&& capacity) : data_(new DynamicData<T>(std::move(capacity))), next_(nullptr) {}
+    ~StackNode() 
+    {
+        delete data_;
+    }
 };
 
 
@@ -79,25 +72,25 @@ private:
     }
 
 public:
-    StackCombined(GrowthPolicy policy) : head_(new StackNode<T>(DEFAULT_CAPACITY)), count_(1), policy_(policy) {}
+    explicit StackCombined(GrowthPolicy policy) : head_(new StackNode<T>(DEFAULT_CAPACITY)), count_(1), policy_(policy) {}
 
     ~StackCombined()
     {
-        while (head_ != nullptr) {
+        while (head_ != nullptr)
+        {
             StackNode<T>* next = head_->next_;
-            delete head_->data_;
             delete head_;
             head_ = next;
         }
         count_ = 0;
     }
 
-    StackCombined(const StackCombined& other) : head_(nullptr), count_(0)
+    StackCombined(const StackCombined& other) : head_(nullptr), count_(0), policy_(other.policy_)
     {
         StackNode<T>** current = &head_;
 
         for (StackNode<T>* source = other.head_; source != nullptr; source = source->next_) {
-            *current = new StackNode<T>(source->data_->count_);
+            *current = new StackNode<T>(source->data_->capacity_);
             (*current)->data_->capacity_ = source->data_->capacity_;
             (*current)->data_->count_ = source->data_->count_;
 
@@ -106,7 +99,7 @@ public:
             }
 
             current = &((*current)->next_);
-            count_++;
+            ++count_;
         }
     }
 
@@ -117,11 +110,12 @@ public:
         StackCombined temp(other);
         std::swap(head_, temp.head_);
         std::swap(count_, temp.count_);
+        std::swap(policy_, temp.policy_);
 
         return *this;
     }
 
-    StackCombined(StackCombined&& other) noexcept : head_(other.head_), count_(other.count_)
+    StackCombined(StackCombined&& other) noexcept : head_(other.head_), count_(other.count_), policy_(other.policy_)
     {
         other.head_ = nullptr;
         other.count_ = 0;
@@ -141,6 +135,8 @@ public:
 
         head_ = other.head_;
         count_ = other.count_;
+        policy_ = other.policy_;
+
         other.head_ = nullptr;
         other.count_ = 0;
 
@@ -159,6 +155,7 @@ public:
                 new_node->next_ = head_;
                 head_ = new_node;
                 head_->data_->data_[head_->data_->count_++] = x;
+                ++count_;
             }
         }
         else {
@@ -171,6 +168,7 @@ public:
                     new_node->next_ = head_;
                     head_ = new_node;
                     head_->data_->data_[head_->data_->count_++] = x;
+                    ++count_;
                 }
             }
             else {
@@ -195,7 +193,7 @@ public:
                 new_node->next_ = head_;
                 head_ = new_node;
                 head_->data_->data_[head_->data_->count_++] = std::move(x);
-                count_++;
+                ++count_;
             }
         }
         else {
@@ -208,7 +206,7 @@ public:
                     new_node->next_ = head_;
                     head_ = new_node;
                     head_->data_->data_[head_->data_->count_++] = std::move(x);
-                    count_++;
+                    ++count_;
                 }
             }
             else {
@@ -234,8 +232,8 @@ public:
             if (head_->data_->count_ == 0 && head_->next_->data_->count_ == 1) {
                 head_->data_->count_--;
                 StackNode<T>* temp = head_->next_;
-                head_->data_->~DynamicData();
-                head_->~StackNode();
+
+                delete head_;
                 head_ = temp;
                 head_->data_->count_--;
                 count_--;
@@ -264,6 +262,21 @@ public:
         }
     }
 
+    const T& top() const
+    {
+        if (count_ == 1 && head_->data_->count_ == 0) {
+            throw std::out_of_range(" top: stacklist is empty!"); 
+        }
+        else {
+            if (head_->data_->count_ == 0) {
+                return head_->next_->data_->data_[head_->next_->data_->count_ - 1];
+            }
+            else {
+                return head_->data_->data_[head_->data_->count_ - 1];
+            }
+        }
+    }
+
     std::size_t size()
     {
         std::size_t res = 0;
@@ -272,9 +285,4 @@ public:
         }
         return res;
     }
-
-
 };
-
-
-

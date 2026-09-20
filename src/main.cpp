@@ -1,162 +1,98 @@
-// #include "stack.hpp"
-// #include "stack_list.hpp"
 #include "stack_combined.hpp"
-
 #include <iostream>
-#include <chrono>
+
+
+long long correct_brackets(const std::string& data)
+{
+    StackCombined<char> stack = StackCombined<char>(GrowthPolicy::Exponential);
+
+    for (size_t i = 0; i < data.size(); ++i) {
+        if (data[i] == '(' || data[i] == '[' || data[i] == '{' || data[i] == '<') {
+            stack.push(data[i]);
+        }
+        else {
+            if (stack.size() == 0) { return i; }
+            else {
+                switch (data[i])
+                {
+                case ')': 
+                    if (stack.top() != '(') { return i; }
+                    break;
+                case ']': 
+                    if (stack.top() != '[') { return i; }
+                    break;
+                case '}': 
+                    if (stack.top() != '{') { return i; }
+                    break;
+                case '>': 
+                    if (stack.top() != '<') { return i; }
+                    break;
+                default:
+                    break;
+                }
+                stack.pop();
+            }
+        }
+    }
+
+    if (stack.size() != 0) { return data.size() - 1; }
+
+    return -1;
+}
+
+
+std::string max_correct_subbrackets(const std::string& string) 
+{
+    StackCombined<int> stack(GrowthPolicy::Exponential);
+    size_t max_len = 0;
+    size_t max_start = 0;
+
+    stack.push(-1);
+
+    for (size_t i = 0; i < string.size(); ++i) {
+        if (string[i] == '(') {
+            stack.push(i);
+        }
+        else {
+            stack.pop();
+
+            if (stack.size() == 0) {
+                stack.push(i);
+            }
+            else {
+                size_t len = i - stack.top();
+
+                if (len > max_len) {
+                    max_len = len;
+                    max_start = stack.top() + 1;
+                }
+            }
+        }
+    }
+    return string.substr(max_start, max_len);
+}
+
 
 int main()
 {
-// ----------- Stack Dynamic -------------
-    /* try
-    {
-        Stack<int> stack(64);
+// ------------ task 1 ------------
+    std::string data;
+    const size_t N = 10000000;
+    data.append(N / 2, '(');
+    data.append(N / 2, ')');
 
-        stack.push(100);
-        stack.push(200);
-        stack.push(300);
-        stack.push(400);
-        stack.push(500);
+    long long index = correct_brackets(data);
 
-        Stack<int> stack2 = std::move(stack);
+    if (index == -1) { std::cout << " correct brackets" << std::endl; }
+    else { std::cout <<  " incorrect bracket: " << index << std::endl; }
 
-        while (stack2.size() > 0) { std::cout << stack2.top() << " "; stack2.pop(); }
-        std::cout << std::endl;
-    }
-    catch(const std::exception& e)
-    {
-        std::cerr << e.what() << '\n';
-    }
-
-    return 0; */
-
-// ------------ Stack List ------------
-    /* try
-    {
-        StackList<int> stacklist;
-        stacklist.push(1);
-        stacklist.push(2);
-        stacklist.push(3);
-        stacklist.push(4);
-
-        int a = 100;
-        stacklist.push(a);
-
-        std::cout << stacklist.top() << std::endl;
-        stacklist.pop();
-        std::cout << stacklist.top() << std::endl;
-
-        StackList<int> stacklist2 = stacklist;
-        stacklist2.push(100);
-        stacklist2.push(200);
-        
-        stacklist2.top();
-        stacklist2.pop();
-        stacklist2.top();
-    }
-    catch(const std::exception& e)
-    {
-        std::cerr << e.what() << '\n';
-    }
-
-    return 0; */
-
-
-// ------------ Stack Combined  ------------
-    try
-    {
-// push tests
-        {
-            StackCombined<int> stackcombined(GrowthPolicy::Fixed);
-
-            auto start = std::chrono::high_resolution_clock::now();
-            for (size_t i = 1; i <= 1000000; ++i) { stackcombined.push(i); }
-            auto end = std::chrono::high_resolution_clock::now();
-
-            std::chrono::duration<double, std::milli> duration = end - start;
-            std::cout << "Fixed push:\t\t" << duration.count() << "\tmillisec" << std::endl;
-        }
-        {
-            StackCombined<int> stackcombined(GrowthPolicy::Linear);
-
-            auto start = std::chrono::high_resolution_clock::now();
-            for (size_t i = 1; i <= 1000000; ++i) { stackcombined.push(i); }
-            auto end = std::chrono::high_resolution_clock::now();
-
-            std::chrono::duration<double, std::milli> duration = end - start;
-            std::cout << "Linear push:\t\t" << duration.count() << "\tmillisec" << std::endl;
-        }
-        {
-            StackCombined<int> stackcombined(GrowthPolicy::Double);
-
-            auto start = std::chrono::high_resolution_clock::now();
-            for (size_t i = 1; i <= 1000000; ++i) { stackcombined.push(i); }
-            auto end = std::chrono::high_resolution_clock::now();
-
-            std::chrono::duration<double, std::milli> duration = end - start;
-            std::cout << "Double push:\t\t" << duration.count() << "\tmillisec" << std::endl;
-        }
-        {
-            StackCombined<int> stackcombined(GrowthPolicy::Exponential);
-
-            auto start = std::chrono::high_resolution_clock::now();
-            for (size_t i = 1; i <= 1000000; ++i) { stackcombined.push(i); }
-            auto end = std::chrono::high_resolution_clock::now();
-
-            std::chrono::duration<double, std::milli> duration = end - start;
-            std::cout << "Exponential push:\t" << duration.count() << "\tmillisec" << std::endl << std::endl;
-        }
-// tests pop
-        {
-            StackCombined<int> stackcombined(GrowthPolicy::Fixed);
-            for (size_t i = 1; i <= 1000000; ++i) { stackcombined.push(i); }
-
-            auto start = std::chrono::high_resolution_clock::now();
-            for (size_t i = 1; i <= 1000000; ++i) { stackcombined.pop(); }
-            auto end = std::chrono::high_resolution_clock::now();
-
-            std::chrono::duration<double, std::milli> duration = end - start;
-            std::cout << "Fixed pop:\t\t" << duration.count() << "\tmillisec" << std::endl;
-        }
-        {
-            StackCombined<int> stackcombined(GrowthPolicy::Linear);
-            for (size_t i = 1; i <= 1000000; ++i) { stackcombined.push(i); }
-
-            auto start = std::chrono::high_resolution_clock::now();
-            for (size_t i = 1; i <= 1000000; ++i) { stackcombined.pop(); }
-            auto end = std::chrono::high_resolution_clock::now();
-
-            std::chrono::duration<double, std::milli> duration = end - start;
-            std::cout << "Linear pop:\t\t" << duration.count() << "\tmillisec" << std::endl;
-        }
-        {
-            StackCombined<int> stackcombined(GrowthPolicy::Double);
-            for (size_t i = 1; i <= 1000000; ++i) { stackcombined.push(i); }
-
-            auto start = std::chrono::high_resolution_clock::now();
-            for (size_t i = 1; i <= 1000000; ++i) { stackcombined.pop(); }
-            auto end = std::chrono::high_resolution_clock::now();
-
-            std::chrono::duration<double, std::milli> duration = end - start;
-            std::cout << "Double pop:\t\t" << duration.count() << "\tmillisec" << std::endl;
-        }
-        {
-            StackCombined<int> stackcombined(GrowthPolicy::Exponential);
-            for (size_t i = 1; i <= 1000000; ++i) { stackcombined.push(i); }
-
-            auto start = std::chrono::high_resolution_clock::now();
-            for (size_t i = 1; i <= 1000000; ++i) { stackcombined.pop(); }
-            auto end = std::chrono::high_resolution_clock::now();
-
-            std::chrono::duration<double, std::milli> duration = end - start;
-            std::cout << "Exponential pop:\t" << duration.count() << "\tmillisec" << std::endl;
-        }
-
-    }
-    catch(const std::exception& e)
-    {
-        std::cerr << e.what() << '\n';
-    }
+    std::cout << std::endl;
+    
+// ------------ task 3 ------------
+    std::string data2 = "())(()()";
+    std::cout << data2 << std::endl;
+    std::string res = max_correct_subbrackets(data2);
+    std::cout << res << std::endl;
 
     return 0;
 }
