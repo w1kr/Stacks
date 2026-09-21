@@ -1,43 +1,26 @@
 #include "stack_combined.hpp"
 #include <iostream>
 
-
-long long correct_brackets(const std::string& data)
+template <typename Iter>
+Iter check_correct_brackets(Iter first, Iter last)
 {
-    StackCombined<char> stack = StackCombined<char>(GrowthPolicy::Exponential);
+    StackCombined<std::pair<Iter, int>> stack = StackCombined<size_t>(GrowthPolicy::Exponential);
 
-    for (size_t i = 0; i < data.size(); ++i) {
-        if (data[i] == '(' || data[i] == '[' || data[i] == '{' || data[i] == '<') {
-            stack.push(data[i]);
+    constexpr std::string open_brackets  = "([{<";
+    constexpr std::string close_brackets = ")]}>";
+
+    for (; first != last; ++first) {
+
+        if (int idx = open_brackets.find(*first); idx >= 0) {
+            stack.push({ first, idx });
         }
         else {
-            if (stack.size() == 0) { return i; }
-            else {
-                switch (data[i])
-                {
-                case ')': 
-                    if (stack.top() != '(') { return i; }
-                    break;
-                case ']': 
-                    if (stack.top() != '[') { return i; }
-                    break;
-                case '}': 
-                    if (stack.top() != '{') { return i; }
-                    break;
-                case '>': 
-                    if (stack.top() != '<') { return i; }
-                    break;
-                default:
-                    break;
-                }
-                stack.pop();
-            }
+            if (!stack.size() || close_brackets[stack.top().second] != *first) { return first; }
+            stack.pop();
         }
     }
 
-    if (stack.size() != 0) { return data.size() - 1; }
-
-    return -1;
+    return stack.size() ? stack.top().first : last;
 }
 
 
@@ -76,15 +59,12 @@ std::string max_correct_subbrackets(const std::string& string)
 int main()
 {
 // ------------ task 1 ------------
-    std::string data;
-    const size_t N = 10000000;
-    data.append(N / 2, '(');
-    data.append(N / 2, ')');
+    std::string data = "([][[{}])";
 
-    long long index = correct_brackets(data);
+    auto iter = check_correct_brackets(begin(data), end(data));
 
-    if (index == -1) { std::cout << " correct brackets" << std::endl; }
-    else { std::cout <<  " incorrect bracket: " << index << std::endl; }
+    if (iter == end(data)) { std::cout << " correct brackets" << std::endl; }
+    else { std::cout <<  " incorrect bracket: " << *iter << std::endl; }
 
     std::cout << std::endl;
     
