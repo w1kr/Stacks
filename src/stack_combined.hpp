@@ -230,7 +230,7 @@ public:
         }
         else {
             if (head_->data_->count_ == 0 && head_->next_->data_->count_ == 1) {
-                head_->data_->count_--;
+                // head_->data_->count_--;
                 StackNode<T>* temp = head_->next_;
 
                 delete head_;
