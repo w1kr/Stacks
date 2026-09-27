@@ -6,8 +6,8 @@ Iter check_correct_brackets(Iter first, Iter last)
 {
     StackCombined<std::pair<Iter, int>> stack = StackCombined<size_t>(GrowthPolicy::Exponential);
 
-    constexpr std::string open_brackets  = "([{<";
-    constexpr std::string close_brackets = ")]}>";
+    std::string open_brackets  = "([{<";
+    std::string close_brackets = ")]}>";
 
     for (; first != last; ++first) {
 
@@ -69,10 +69,10 @@ int main()
     std::cout << std::endl;
     
 // ------------ task 3 ------------
-    std::string data2 = "())(()()";
+/*     std::string data2 = "())(()()";
     std::cout << data2 << std::endl;
     std::string res = max_correct_subbrackets(data2);
-    std::cout << res << std::endl;
+    std::cout << res << std::endl; */
 
     return 0;
 }
