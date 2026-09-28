@@ -1,17 +1,18 @@
 #include "stack_combined.hpp"
 #include <iostream>
+#include <vector>
+
 
 template <typename Iter>
 Iter check_correct_brackets(Iter first, Iter last)
 {
     StackCombined<std::pair<Iter, int>> stack(GrowthPolicy::Exponential);
-
     std::string open_brackets  = "([{<";
     std::string close_brackets = ")]}>";
 
     for (; first != last; ++first) {
 
-        if (long long idx = open_brackets.find(*first); idx >= 0) {
+        if (int idx = open_brackets.find(*first); idx >= 0) {
             stack.push({ first, idx });
         }
         else {
@@ -56,55 +57,38 @@ Iter check_correct_brackets(Iter first, Iter last)
 } */
 
 
-template <typename Iter>
+template<typename Iter>
 std::string max_correct_subbrackets(Iter first, Iter last)
 {
     StackCombined<std::pair<Iter, int>> stack(GrowthPolicy::Exponential);
-
     std::string open_brackets  = "([{<";
     std::string close_brackets = ")]}>";
-
     Iter max_start = last;
     Iter max_end = last;
 
-    stack.push({ first, -1 });
+    stack.push({first, -1});
 
-    for (Iter current = first; current != last; ++current) {
+    for (; first != last; ++first) {
+        int idx = open_brackets.find(*first);
 
-        auto open_idx = open_brackets.find(*current);
-
-        if (open_idx != std::string::npos) {
-            stack.push({ current, static_cast<int>(open_idx) });
+        if (idx >= 0) {
+            stack.push({ first, idx });
         }
         else {
-            auto close_idx = close_brackets.find(*current);
+            stack.pop();
 
-            if (stack.size() == 1) {
-                stack.pop();
-                stack.push({ current, -1 });
-            }
-            else if (stack.top().second != static_cast<int>(close_idx)) {
-                while (stack.size() > 1) {
-                    stack.pop();
-                }
-                stack.pop();
-                stack.push({ current, -1 });
+            if (stack.size() == 0) {
+                stack.push( {first, -1});
             }
             else {
-                stack.pop();
-                Iter start = stack.top().first;
+                Iter start = stack.top();
+                Iter end = first;
+                ++start;
+                ++end;
 
-                if (stack.top().second != -1) {
-                    ++start;
-                }
-
-                std::size_t len = std::distance(start, current);
-                std::size_t max_len = (max_start == last) ? 0 : std::distance(max_start, max_end);
-
-                if (len > max_len) {
+                if (std::distance(start, end) > std::distance(max_start, max_end)) {
                     max_start = start;
-                    max_end = current;
-                    ++max_end;
+                    max_end = end;
                 }
             }
         }
@@ -126,53 +110,34 @@ int main()
     std::cout << std::endl;
     
 // ------------ task 3 ------------
+    std::vector<std::pair<std::string, std::string>> tests = {
+        {"", ""},
+        {"(", ""},
+        {")", ""},
+        {"()", "()"},
+        {"((", ""},
+        {"))", ""},
+        {"())", "()"},
+        {"(()", "()"},
+        {"((()))", "((()))"},
+        {"()()", "()()"},
+        {"()()()", "()()()"},
+        {"(()())", "(()())"},
+        {"((()))()", "((()))()"},
+        {"()((()))", "()((()))"},
+        {"())((()))", "((()))"},
+        {"((())", "(())"},
+        {"(()))", "(())"},
+        {"())()", "()"},
+    };
 
-    std::string test;
-    std::string result;
-
-    test = "())(()()";
-    result = max_correct_subbrackets(test.begin(), test.end());
-    std::cout << test << " ->\t" << result << std::endl;
-
-    test = "((()))";
-    result = max_correct_subbrackets(test.begin(), test.end());
-    std::cout << test << "\t->\t" << result << std::endl;
-
-    test = "()()()";
-    result = max_correct_subbrackets(test.begin(), test.end());
-    std::cout << test << "\t->\t" << result << std::endl;
-
-    test = "((()";
-    result = max_correct_subbrackets(test.begin(), test.end());
-    std::cout << test << "\t->\t" << result << std::endl;
-
-    test = "())";
-    result = max_correct_subbrackets(test.begin(), test.end());
-    std::cout << test << "\t->\t" << result << std::endl;
-
-    test = "([{}])";
-    result = max_correct_subbrackets(test.begin(), test.end());
-    std::cout << test << "\t->\t" << result << std::endl;
-
-    test = "([)]";
-    result = max_correct_subbrackets(test.begin(), test.end());
-    std::cout << test << "\t->\t" << result << std::endl;
-
-    test = "{[()]}";
-    result = max_correct_subbrackets(test.begin(), test.end());
-    std::cout << test << "\t->\t" << result << std::endl;
-
-    test = "{[(])}";
-    result = max_correct_subbrackets(test.begin(), test.end());
-    std::cout << test << "\t->\t" << result << std::endl;
-
-    test = "(()[{}])";
-    result = max_correct_subbrackets(test.begin(), test.end());
-    std::cout << test << " ->\t" << result << std::endl;
-
-    test = "";
-    result = max_correct_subbrackets(test.begin(), test.end());
-    std::cout << test << "\t->\t" << result << std::endl;
+    for (const auto& [input, expected] : tests) {
+        std::string result = max_correct_subbrackets(begin(input), end(input));
+        std::cout << input
+                << " -> " << result
+                << (result == expected ? "  OK" : "  ERROR")
+                << std::endl;
+    }
 
     return 0;
 }
