@@ -1,4 +1,10 @@
+#pragma once
+
 #include "stack_combined.hpp"
+#include <string>
+
+const std::string OPEN_BRACKETS = "([{<";
+const std::string CLOSE_BRACKETS = ")]}>";
 
 
 std::string max_correct_subbrackets(const std::string& string) 
@@ -38,12 +44,14 @@ template<typename Iter>
 std::string max_correct_subbrackets(Iter first, Iter last)
 {
     StackCombined<std::pair<Iter, int>> stack(GrowthPolicy::Exponential);
+    
     std::string open_brackets  = "([{<";
     std::string close_brackets = ")]}>";
+    
     Iter max_start = first;
     std::size_t max_len = 0;
     
-    for ( ; first != last; ++first)
+    for (; first != last; ++first)
     {
         if (std::size_t idx = open_brackets.find(*first); 
             idx != std::string_view::npos)
@@ -53,25 +61,35 @@ std::string max_correct_subbrackets(Iter first, Iter last)
         }
 
         if (std::size_t idx = close_brackets.find(*first);
-            idx != std::string_view::npos && 
-            !stack.size() && 
-            stack.top().second == idx)
+            idx != std::string_view::npos)
         {
+            if (!stack.size() || stack.top().second != idx)
+            {
+                while (stack.size())
+                {
+                    stack.pop();
+                }
+                continue;
+            }
+
+            // stack.pop();
+            // const Iter start = stack.size() == 0 ? first : std::next(stack.top().first);
+
+            const Iter start = stack.top().first;
             stack.pop();
-            const Iter start = stack.size() == 0 ? first : std::next(stack.top().first);
-            const std::size_t len = static_cast<std::size_t>(std::distance(start, std::next(first)))
-            
+            const std::size_t len = static_cast<std::size_t>(std::distance(start, std::next(first)));
+
             if (len > max_len)
             {
                 max_len = len;
                 max_start = start;
             }
         }
-
-        else
+        
+        /* else
         {
-            stack.push( {first, std::string_view::npos} )
-        }
+            stack.push( {first, std::string_view::npos} );
+        } */
     }
 
     return std::string(max_start, std::next(max_start, max_len));
