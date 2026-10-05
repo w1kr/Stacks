@@ -1,5 +1,5 @@
 #include <string>
-
+#include <deque>
 
 
 template<typename Iter>
@@ -42,7 +42,7 @@ std::string is_brackets_restorable_v2(Iter first, Iter last)
                 a = 1;
                 deq.pop_front();
             }
-            if (b < 0) { return false; }
+            if (b < 0) { return ""; }
         }
         else {
             a--;
@@ -53,7 +53,12 @@ std::string is_brackets_restorable_v2(Iter first, Iter last)
                 deq.pop_front(); 
             }
 
-            auto back = d.back();
+            /* if (!deq.size())
+            {
+                continue;
+            } */
+
+            auto back = deq.back();
 
             for (auto& el : deq) { el.push_back(')'); }
             deq.push_back(back + '(');
