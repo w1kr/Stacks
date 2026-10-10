@@ -1,10 +1,7 @@
 #pragma once
 
+#include "max_correct_subbrackets.hpp"
 #include "stack_combined.hpp"
-#include <string>
-
-const std::string OPEN_BRACKETS = "([{<";
-const std::string CLOSE_BRACKETS = ")]}>";
 
 
 std::string max_correct_subbrackets(const std::string& string) 
@@ -94,3 +91,4 @@ std::string max_correct_subbrackets(Iter first, Iter last)
 
     return std::string(max_start, std::next(max_start, max_len));
 }
+

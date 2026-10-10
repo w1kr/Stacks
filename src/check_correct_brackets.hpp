@@ -1,4 +1,4 @@
-#include "stack_combined.hpp"
+#pragma once
 
 template <typename Iter>
 Iter check_correct_brackets(Iter first, Iter last)

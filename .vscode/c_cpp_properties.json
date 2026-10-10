@@ -3,7 +3,7 @@
         {
             "name": "Win32",
             "includePath": [
-                "c:/Users/uwf0r/OneDrive/Documents/VScode/plusi/Stacks/**"
+                "C:\\Users\\wlkr\\Documents\\VScode\\plusi\\Stacks**"
             ],
             "defines": [
                 "_DEBUG",
@@ -11,10 +11,9 @@
                 "_UNICODE"
             ],
             "windowsSdkVersion": "10.0.19041.0",
-            "compilerPath": "C:/Strawberry/c/bin/g++.exe",
+            "compilerPath": "C:\\msys64\\ucrt64\\bin\\g++.exe",
             "cStandard": "c17",
             "cppStandard": "c++20",
-            "compilerPathInCppPropertiesJson": "cl.exe",
             "intelliSenseMode": "windows-gcc-x64",
             "mergeConfigurations": false,
             "recursiveIncludes": {},

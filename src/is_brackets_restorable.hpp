@@ -1,3 +1,5 @@
+#pragma once
+
 #include <string>
 #include <deque>
 
@@ -69,3 +71,4 @@ std::string is_brackets_restorable_v2(Iter first, Iter last)
     if (a == 0) { return deq.front(); }
     return "";
 }
+

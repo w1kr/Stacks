@@ -67,12 +67,12 @@ private:
             case GrowthPolicy::Exponential:
                 return current_capacity * 3;
             default:
-                return 0; // pass
+                return current_capacity * 3;
         }
     }
 
 public:
-    explicit StackCombined(GrowthPolicy policy) : head_(new StackNode<T>(DEFAULT_CAPACITY)), count_(1), policy_(policy) {}
+    explicit StackCombined(GrowthPolicy policy = GrowthPolicy::Exponential) : head_(new StackNode<T>(DEFAULT_CAPACITY)), count_(1), policy_(policy) {}
 
     ~StackCombined()
     {
