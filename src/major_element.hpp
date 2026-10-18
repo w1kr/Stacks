@@ -172,7 +172,7 @@ Iter find_frequent_element_b(Iter first, Iter last)
 
         if (stacks.size() < k - 1)
         {
-            stacks.emplace_back(GrowthPolicy::Exponential);
+            stacks.emplace_back();
             stacks.back().push(it);
             continue;
         }
