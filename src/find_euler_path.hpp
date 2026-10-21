@@ -5,10 +5,23 @@
 #include <set>
 #include <algorithm>
 #include <random>
+#include <utility>
 
 
 using vector_graph = std::vector<std::vector<std::size_t>>;
 using set_graph = std::vector<std::vector<std::size_t>>;
+
+
+// --------------------------------------------------
+// count_if - for counting odd vertexes
+// std::count_if(g.begin(), 
+//        g.end(),
+//        [](auto& graph)
+//        { return graph.size() % 2; });
+//
+// std::size_t start_vertex; //(first odd vertex);
+// std::find_if - for find first odd vertex
+// --------------------------------------------------
 
 
 std::vector<std::size_t> find_euler_path_vector(vector_graph graph) 
@@ -69,14 +82,19 @@ std::vector<std::size_t> find_euler_path_vector(vector_graph graph)
             std::size_t v = graph[u].back();
             graph[u].pop_back();
 
-            for (std::size_t i = 0; i < graph[v].size(); ++i) 
+            /* for (std::size_t i = 0; i < graph[v].size(); ++i) 
             {
-                if (graph[v][i] == u) 
+                if (graph[v][i] == u)
                 {
                     graph[v].erase(graph[v].begin() + i);
                     break;
                 }
-            }
+            } */
+
+            // --------------------------------------------------------------------------
+            std::iter_swap(std::find(graph[v].begin(), graph[v].end(), u), graph[v].end() - 1);
+            graph[v].pop_back();
+            // --------------------------------------------------------------------------
 
             stack.push(v);
         }
@@ -179,6 +197,41 @@ vector_graph generate_euler_graph(const std::size_t&& n, const std::size_t&& m)
     if (edge_count != m)
     {
         return {};
+    }
+
+    return graph;
+}
+
+
+template<class graph_t>
+vector_graph generate_euler_graph_v2(std::size_t verts, std::size_t edges)
+{
+    if (!verts)
+    {
+        return {};
+    }
+    
+    graph_t graph(verts + 1);
+
+    std::random_device random_device;
+    std::mt19937 generator(random_device());
+    std::uniform_int_distribution<std::size_t> vertex_distribution(1, verts);
+
+    std::size_t start =  vertex_distribution(generator);
+    std::size_t edge_count = 0;
+
+    while (edge_count < edges)
+    {
+        std::size_t next = vertex_distribution(generator);
+
+        if (next != start)
+        {
+            // add_edge(graph, start, next);
+            graph[start].push_back(next);
+            graph[next].push_back(start);
+            start = next;
+            edge_count++;
+        }
     }
 
     return graph;
