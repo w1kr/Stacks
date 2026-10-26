@@ -110,7 +110,7 @@ std::vector<std::size_t> find_euler_path_vector(vector_graph graph)
 }
 
 
-vector_graph generate_euler_graph(const std::size_t&& n, const std::size_t&& m)
+vector_graph generate_euler_graph(std::size_t n, std::size_t m)
 {
     if (n < 1 ||
         m < 0 ||
@@ -236,3 +236,40 @@ vector_graph generate_euler_graph_v2(std::size_t verts, std::size_t edges)
 
     return graph;
 }
+
+
+using egraph = std::vector<std::vector<std::pair<int, int>>>;
+
+
+egraph convert_to_egraph(const vector_graph& g)
+{
+    egraph eg(g.size() - 1);
+    size_t e_id = 0;
+
+    for (size_t i = 0; i < g.size(); ++i)
+    {
+        for (size_t u : g[i])
+        {
+            if (i < u)
+            {
+                eg[i].emplace_back(u, e_id);
+                eg[u].emplace_back(i, e_id);
+                e_id++;
+            }
+        }
+    }
+
+    return eg;
+}
+
+
+/* std::vector<std::size_t> find_euler_path_egraph(const vector_graph& g)
+{
+    std::vector<std::size_t> res;
+    egraph eg = convert_to_egraph(g);
+    std::vector<std::size_t> visited_count(eg.size());
+    // size_t E = std::accumulate(g.begin(), g.end(), 0, [](size_t sum, const)); // edge count
+    // std::vector<bool> visited(E, false) 
+    
+    return res;
+} */
