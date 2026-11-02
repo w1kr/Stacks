@@ -45,25 +45,24 @@ std::vector<std::size_t> build_convex_hull(const std::vector<point> &p)
     {
         return {};
     }
-
-    // input check
-    for (const auto& pt : p)
+    else if (p.size() == 1)
     {
-        if (!std::isfinite(pt.x) || !std::isfinite(pt.y))
-        {
-            throw std::invalid_argument("Invalid coordinates");
-        }
+        return {0};
+    }
+    else if (p.size() == 2)
+    {
+        return {0, 1};
     }
 
     // delete repeating points
-    std::vector<std::size_t> order(p.size());
+    std::vector<std::size_t> vec(p.size());
 
     for (std::size_t i = 0; i < p.size(); ++i)
     {
-        order[i] = i;
+        vec[i] = i;
     }
 
-    std::sort(order.begin(), order.end(), [&](std::size_t a, std::size_t b)
+    std::sort(vec.begin(), vec.end(), [&](std::size_t a, std::size_t b)
     {
         if (p[a].x != p[b].x)
         {
@@ -80,7 +79,7 @@ std::vector<std::size_t> build_convex_hull(const std::vector<point> &p)
 
     std::vector<std::size_t> unique;
 
-    for (std::size_t i : order)
+    for (std::size_t i : vec)
     {
         if (unique.empty() || 
             p[i].x != p[unique.back()].x || 
@@ -90,37 +89,25 @@ std::vector<std::size_t> build_convex_hull(const std::vector<point> &p)
         }
     }
 
-    order = std::move(unique);
-
-    if (order.size() == 1)
-    {
-        return order;
-    }
+    vec = std::move(unique);
 
     // 1
     std::size_t min_pos = 0;
 
-    for (std::size_t i = 1; i < order.size(); ++i)
+    for (std::size_t i = 1; i < vec.size(); ++i)
     {
-        if (p[order[i]].y < p[order[min_pos]].y || 
-            (p[order[i]].y == p[order[min_pos]].y && 
-            p[order[i]].x < p[order[min_pos]].x))
+        if (p[vec[i]].y < p[vec[min_pos]].y || 
+            (p[vec[i]].y == p[vec[min_pos]].y && 
+            p[vec[i]].x < p[vec[min_pos]].x))
         {
             min_pos = i;
         }
     }
 
-    std::swap(order[0], order[min_pos]);
-
-    if (order.size() == 2)
-    {
-        return order;
-    }
-
     // 2
-    const point base = p[order[0]];
+    const point base = p[vec[0]];
 
-    std::sort(order.begin() + 1, order.end(), [&](std::size_t a, std::size_t b)
+    std::sort(vec.begin() + 1, vec.end(), [&](std::size_t a, std::size_t b)
     {
         return (p[a] - base) < (p[b] - base);
     });
@@ -128,12 +115,12 @@ std::vector<std::size_t> build_convex_hull(const std::vector<point> &p)
     // 3
     std::vector<std::size_t> S;
 
-    S.push_back(order[0]);
-    S.push_back(order[1]);
+    S.push_back(vec[0]);
+    S.push_back(vec[1]);
 
-    for (std::size_t i = 2; i < order.size(); ++i)
+    for (std::size_t i = 2; i < vec.size(); ++i)
     {
-        std::size_t c = order[i];
+        std::size_t c = vec[i];
 
         while (S.size() >= 2)
         {
@@ -156,6 +143,7 @@ std::vector<std::size_t> build_convex_hull(const std::vector<point> &p)
 
     // 4
     std::reverse(S.begin() + 1, S.end());
+    std::reverse(begin(S), end(S));
 
     return S;
 }

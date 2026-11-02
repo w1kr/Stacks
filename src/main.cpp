@@ -7,149 +7,60 @@
 
 #include "build_convex_hull.hpp"
 
-
-void test(
-    const std::string& name,
-    const std::vector<point>& p,
-    const std::vector<std::size_t>& expected)
+const std::vector<point> data = 
 {
-    auto result = build_convex_hull(p);
+    {2, 1},
+    {4, 1},
+    {5, 3},
+    {3,2},
+    {4,3},
+    {3,5},
+    {2,3},
+    {1,3}
+};
 
-    if (result != expected)
+
+std::size_t build_multi_convex_hull(std::vector<point> p)
+{
+    std::size_t count = 0;
+    std::vector<bool> used(p.size(), false);
+    
+    while (!p.empty())
     {
-        std::cout << "[FAIL] " << name << "\n";
-
-        std::cout << "Expected: ";
-        for (auto i : expected)
+        auto res = build_convex_hull(p);
+        for (std::size_t idx : res)
         {
-            std::cout << i << " ";
+            used[idx] = true;
         }
 
-        std::cout << "\nActual: ";
-        for (auto i : result)
+        std::size_t passed = 0;
+        for (std::size_t i = 0; i < p.size(); ++i)
         {
-            std::cout << i << " ";
+            if (used[i])
+            {
+                passed++;
+            }
+            else
+            {
+                p[i - passed] = p[i];
+            }
         }
 
-        std::cout << "\n\n";
-        
-        return;
+        p.resize(p.size() - passed);
+        count += 1;
     }
 
-    std::cout << "[OK] " << name << "\n";
+    return count;
 }
 
 
 int main(void)
 {
-    test("Empty", {}, {});
+    std::size_t res = build_multi_convex_hull(data);
 
-    test("One point",
-        {{5, 5}},
-        {0});
+    std::cout << res << std::endl;
 
-    test("Two points",
-        {{0, 0}, {5, 5}},
-        {0, 1});
+    // придумать как сгенерить тест для этой функции (через треугольники или что-то еще)
 
-    test("Triangle",
-        {
-            {0, 0},
-            {4, 0},
-            {2, 4},
-            {2, 1}
-        },
-        {0, 2, 1});
-
-    test("Square",
-        {
-            {0, 0},
-            {4, 0},
-            {4, 4},
-            {0, 4}
-        },
-        {0, 3, 2, 1});
-
-    test("Square with inner points",
-        {
-            {0, 0},
-            {4, 0},
-            {4, 4},
-            {0, 4},
-            {1, 1},
-            {2, 2},
-            {3, 3}
-        },
-        {0, 3, 2, 1});
-
-    test("Points on edges",
-        {
-            {0, 0},
-            {4, 0},
-            {4, 4},
-            {0, 4},
-            {2, 0},
-            {4, 2},
-            {2, 4},
-            {0, 2}
-        },
-        {0, 3, 2, 1});
-
-    test("Horizontal line",
-        {
-            {2, 0},
-            {0, 0},
-            {1, 0},
-            {3, 0}
-        },
-        {1, 3});
-
-    test("Diagonal line",
-        {
-            {2, 2},
-            {0, 0},
-            {1, 1},
-            {3, 3}
-        },
-        {1, 3});
-
-    test("Duplicate points",
-        {
-            {0, 0},
-            {0, 0},
-            {4, 0},
-            {4, 4},
-            {0, 4},
-            {2, 2}
-        },
-        {0, 4, 3, 2});
-
-    test("Negative coordinates",
-        {
-            {-2, -1},
-            {-1, -1},
-            {-1,  0},
-            {-2,  0},
-            {-1.5, -0.5}
-        },
-        {0, 3, 2, 1});
-
-    test("Two points: lowest first",
-        {
-            {0, 5},
-            {10, 0}
-        },
-        {1, 0});
-
-    test("Same polar angle",
-        {
-            {0, 0},
-            {-1, 1},
-            {-2, 2},
-            {-3, 3},
-            {-100, 1}
-        },
-        {0, 4, 3});
-
-        return 0;
+    return 0;
 }
