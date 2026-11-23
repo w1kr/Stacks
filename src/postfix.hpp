@@ -285,8 +285,7 @@ inline std::vector<token> to_postfix(
         {
             if (t.name == ",")
             {
-                if (expect_operand || parentheses.empty() ||
-                    !parentheses.back().is_function)
+                if (expect_operand || parentheses.empty() || !parentheses.back().is_function)
                     throw std::runtime_error("Err: invalid comma");
 
                 while (!operators.empty() && operators.back().type != token_t::op_br)
@@ -306,7 +305,7 @@ inline std::vector<token> to_postfix(
                     throw std::runtime_error("Err: missing condition before '?'");
 
                 while (!operators.empty() && operators.back().type == token_t::op &&
-                       operators.back().name != "?" &&
+                        operators.back().name != "?" &&
                        get_priority(operators.back()) > 0)
                     pop_operator();
 
@@ -320,8 +319,8 @@ inline std::vector<token> to_postfix(
                 if (expect_operand)
                     throw std::runtime_error("Err: missing expression before ':'");
 
-                while (!operators.empty() &&
-                       !(operators.back().type == token_t::op && operators.back().name == "?"))
+                while (!operators.empty() && !(operators.back().type == token_t::op && 
+                        operators.back().name == "?"))
                 {
                     if (operators.back().type == token_t::op_br)
                         throw std::runtime_error("Err: ':' without matching '?'");
@@ -358,7 +357,7 @@ inline std::vector<token> to_postfix(
             const bool right_associative = (t.name == "^" || t.name == "u+" || t.name == "u-" || t.name == "not" || t.name == "?:");
 
             while (!operators.empty() && operators.back().type == token_t::op &&
-                   operators.back().name != "?")
+                    operators.back().name != "?")
             {
                 const int top_priority = get_priority(operators.back());
                 if (top_priority > current_priority ||
